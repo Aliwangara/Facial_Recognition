@@ -1,0 +1,37 @@
+{% extends 'dashboard/d_layouts/d_master.html' %}
+{% load static %}
+
+{% block body %}
+
+<h2>Attendance Report</h2>
+<table border="1" cellpadding="5">
+    <thead>
+        <tr>
+            <th>Student</th>
+            {% for date in dates %}
+                <th>{{ date }}</th>
+            {% endfor %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for student in students %}
+        <tr>
+            <td>{{ student.user.get_full_name }}</td>
+            {% for date in dates %}
+                <td>
+                    {% if student_attendance.student.date %}
+                        ✅
+                    {% else %}
+                        ❌
+                    {% endif %}
+                </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+
+
+
+{% endblock %}

@@ -1,0 +1,58 @@
+{% extends "mainscreen/ms_layouts/master.html" %}
+{% load static %}
+
+{% block content %}
+  <div style="margin-top: 200px;">
+    <form id="faceForm" method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      <p>{{ form.as_p }}</p>
+      <button type="button" id="capture">Take Picture</button>
+    </form>
+
+    <video id="video" width="640" height="480" autoplay></video>
+    <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+  </div>
+
+  <script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const captureBtn = document.getElementById('capture');
+
+    // Start webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert("Could not access webcam: " + err);
+      });
+
+    captureBtn.addEventListener('click', () => {
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      const imageData = canvas.toDataURL('image/jpeg');
+
+      const studentId = document.querySelector('[name="student"]').value;
+
+      fetch("{% url 'upload_face' %}", {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          student_id: studentId,
+          image: imageData
+        })
+      })
+      .then(res => res.json())
+      .then(data => {
+        alert(data.message);
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Something went wrong.");
+      });
+    });
+  </script>
+{% endblock %}

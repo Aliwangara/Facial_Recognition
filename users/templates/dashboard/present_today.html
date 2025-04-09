@@ -1,0 +1,28 @@
+{% extends 'dashboard/d_layouts/d_master.html' %}
+{% block body %}
+<div class="container mt-4">
+    <h3>Students Present Today</h3>
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Student ID</th>
+                <th>Name</th>
+                <th>Time Recognized</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if students_data %}
+                {% for student in students_data %}
+                    <tr>
+                        <td>{{ student.student_id }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.time }}</td>
+                    </tr>
+                {% endfor %}
+            {% else %}
+                <tr><td colspan="3" class="text-center">No students marked present today.</td></tr>
+            {% endif %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

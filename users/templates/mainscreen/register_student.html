@@ -1,0 +1,15 @@
+{% extends "mainscreen/ms_layouts/master.html" %}
+{% load static %}
+
+{% block content %}
+
+<h2 style="margin-top: 200px;">Register Student</h2>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Register</button>
+</form>
+
+
+
+{% endblock %}

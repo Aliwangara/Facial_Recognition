@@ -1,0 +1,41 @@
+{% extends 'dashboard/d_layouts/d_master.html' %}
+{% load static %}
+
+{% block body %}
+
+<main class="app-main">
+    <div class="container-fluid mt-4">
+        <h3>Absent Students - {{ today|date:"M d, Y" }}</h3>
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Student ID</th>
+                    <th>Full Name</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                {% if absent_students %}
+                    {% for student in absent_students %}
+                        <tr>
+                            <td>{{ student.student_id }}</td>
+                            <td>{{ student.user }}</td>
+                            
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr><td colspan="3" class="text-center">All students are present today.</td></tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</main>
+
+
+
+
+
+
+
+
+{%endblock %}

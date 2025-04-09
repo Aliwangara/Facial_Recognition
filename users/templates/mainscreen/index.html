@@ -1,0 +1,127 @@
+{% extends "mainscreen/ms_layouts/master.html" %}
+{% load static %}
+
+{% block content %}
+<div class="video-container">
+  <h2>Live Camera Feed</h2>
+  <video id="videoFeed" autoplay playsinline width="640" height="480"></video>
+  <div id="videoError" style="display:none; color:red; margin-top:10px;">
+      Camera feed unavailable. Please check your camera connection.
+  </div>
+
+  <p id="currentStatus">Initializing camera...</p>
+  <p>Present: <span id="presentCount">0</span></p>
+  <div class="recognition-feedback"></div>
+</div>
+
+<style>
+  .face-recognized {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 5px;
+      transition: opacity 0.5s ease-out;
+  }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const video = document.getElementById('videoFeed');
+    const errorDiv = document.getElementById('videoError');
+    const currentStatus = document.getElementById('currentStatus');
+    const presentCount = document.getElementById('presentCount');
+    const recognizedStudents = new Set();
+    const sessionStartTime = new Date();
+
+    // Initialize camera
+    async function initCamera() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ 
+                video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' } 
+            });
+            video.srcObject = stream;
+            errorDiv.style.display = 'none';
+            currentStatus.textContent = "Camera ready - scanning for faces...";
+            startFaceRecognition();
+        } catch (err) {
+            console.error("Camera error:", err);
+            errorDiv.textContent = `Error: ${err.message}`;
+            errorDiv.style.display = 'block';
+        }
+    }
+
+    // Start face recognition
+    function startFaceRecognition() {
+        setInterval(async () => {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                canvas.getContext('2d').drawImage(video, 0, 0);
+                const frame = canvas.toDataURL('image/jpeg').split(',')[1];
+
+                const response = await fetch('/auto_recognize/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: JSON.stringify({ frame })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    updateUI(result);
+                }
+            } catch (err) {
+                console.error("Recognition error:", err);
+                currentStatus.textContent = "Recognition error - retrying...";
+            }
+        }, 3000);
+    }
+
+    function updateUI(result) {
+        if (result.recognized) {
+            recognizedStudents.add(result.student_id);
+            currentStatus.textContent = `Recognized: ${result.name}`;
+            presentCount.textContent = recognizedStudents.size;
+            showRecognitionFeedback(result.name);
+        } else if (result.message) {
+            currentStatus.textContent = result.message;
+        }
+    }
+
+    function showRecognitionFeedback(name) {
+        const feedback = document.createElement('div');
+        feedback.className = 'face-recognized';
+        feedback.textContent = `✓ ${name}`;
+        document.querySelector('.recognition-feedback').appendChild(feedback);
+        setTimeout(() => {
+            feedback.style.opacity = '0';
+            setTimeout(() => feedback.remove(), 500);
+        }, 3000);
+    }
+
+    window.addEventListener('beforeunload', async () => {
+        try {
+            await fetch('/mark_absent/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ 
+                    recognized_ids: Array.from(recognizedStudents),
+                    session_start: sessionStartTime.toISOString()
+                })
+            });
+        } catch (err) {
+            console.error("Error marking absent:", err);
+        }
+    });
+
+    initCamera();
+});
+</script>
+{% endblock %}
