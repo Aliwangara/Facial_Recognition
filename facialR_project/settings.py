@@ -30,12 +30,8 @@ SECRET_KEY =os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = []
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://b7bc-41-90-172-173.ngrok-free.app',
-    # Add other domains as needed
-]
 
 # Also ensure these settings are correct:
 CSRF_COOKIE_SECURE = True  # For HTTPS
@@ -52,6 +48,7 @@ AUTH_USER_MODEL = 'users.User'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
+    
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -66,6 +63,9 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'crispy_forms',
     'crispy_bootstrap5',
+
+
+    
 ]
 
 # Crispy Forms Setup

@@ -1,7 +1,7 @@
 
 from django.urls import path
 from facialR_project import settings
-from users import views
+from users import views, superuser_views
 
 urlpatterns = [
     path('',views.home, name='home'),
@@ -22,6 +22,11 @@ urlpatterns = [
 
 
     path('students/', views.student_list, name='student_list'),
+
+    path('choose-role/', views.choose_role, name='choose_role'),
+    path('login/student/', views.student_login_view, name='student_login'),
+
+    path('admin/manage-teachers/', superuser_views.manage_teachers_view, name='manage_teachers'),
     
 
 

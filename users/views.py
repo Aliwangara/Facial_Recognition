@@ -11,9 +11,11 @@ from datetime import date
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
 from django.views.decorators.http import require_POST
 
-from users.forms import StudentRegistrationForm, FaceUploadForm,FaceUploadSelectForm
+from users.forms import StudentRegistrationForm, FaceUploadForm,FaceUploadSelectForm, StudentLoginForm
 from .models import Student, Attendance, FaceEncoding, LiveAttendance, Subject
 
 import cv2
@@ -41,6 +43,18 @@ logger = logging.getLogger(__name__)
 def home(request):
     return render(request, 'mainscreen/index.html')
 
+def choose_role(request):
+    if request.method == 'POST':
+        role = request.POST.get('role')
+        if role == 'student':
+            return redirect('student_login')
+        elif role == 'teacher':
+            return redirect('teacher_login')  # You'll need to create this
+        else:
+            messages.error(request, 'Please select a valid role')
+            return redirect('choose_role')
+    return render(request, 'mainscreen/role_choice.html')
+
 
 @login_required
 def dashboard(request):
@@ -48,6 +62,7 @@ def dashboard(request):
     today = timezone.now().date()
 
     if user.is_superuser:
+        # Admin dashboard
         total_students = Student.objects.count()
         total_subjects = Subject.objects.count()
         present_today = Attendance.objects.filter(timestamp__date=today).count()
@@ -65,11 +80,13 @@ def dashboard(request):
         return render(request, 'dashboard/d_index.html', context)
 
     elif user.is_teacher:
-        subjects = Subject.objects.filter(teacher=user)
-        subject_ids = subjects.values_list('id', flat=True)
+        if not user.is_approved_teacher:
+            messages.error(request, 'Your teacher account is pending admin approval.')
+            return redirect('home')
 
-        students = Student.objects.filter(subjects__in=subject_ids).distinct()
+        students = Student.objects.all()
         total_students = students.count()
+
         present_today = Attendance.objects.filter(
             timestamp__date=today,
             student__in=students
@@ -79,7 +96,6 @@ def dashboard(request):
 
         context = {
             'role': 'Teacher',
-            'subjects': subjects,
             'total_students': total_students,
             'present_today': present_today,
             'absent_today': absent_today,
@@ -87,20 +103,51 @@ def dashboard(request):
         }
         return render(request, 'dashboard/d_index.html', context)
 
-    elif hasattr(user, 'student'):
-        student = user.student
-        attendance_today = Attendance.objects.filter(
-            student=student,
-            timestamp__date=today
-        ).exists()
+    elif hasattr(request.user, 'student'):
+     student = request.user.student
+    today = timezone.now().date()
+    
+    # Get all attendance records
+    attendance_records = Attendance.objects.filter(student=student)
+    total_present = attendance_records.count()
+    
+    # Calculate days since registration
+    start_date = student.created_at.date()
+    total_days = (today - start_date).days
+    
+    # Ensure minimum of 1 day to avoid division by zero
+    total_days = max(1, total_days)
+    
+    # Calculate absent days (can't be negative)
+    total_absent = max(0, total_days - total_present)
+    
+    # Calculate attendance percentage (0-100)
+    attendance_percentage = min(100, max(0, round((total_present / total_days) * 100, 2)))
+    
+    context = {
+        'role': 'Student',
+        'total_present': total_present,
+        'total_absent': total_absent,  # This will never be negative
+        'attendance_percentage': attendance_percentage,
+    }
+    return render(request, 'dashboard/d_index.html', context)
 
-        context = {
-            'role': 'Student',
-            'attendance_today': attendance_today
-        }
-        return render(request, 'dashboard/d_index.html', context)
 
-    return render(request, 'dashboard/d_index.html', {'error': 'Role not recognized'})
+def student_login_view(request):
+    if request.method == 'POST':
+        form = StudentLoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data['username']
+            password = form.cleaned_data['password']
+            user = authenticate(request, username=username, password=password)
+            if user is not None and user.is_student:
+                login(request, user)
+                return redirect('dashboard')
+            else:
+                messages.error(request, 'Invalid credentials or not a student account.')
+    else:
+        form = StudentLoginForm()
+    return render(request, 'mainscreen/student_login.html', {'form': form})
 
 
 @csrf_exempt
@@ -262,7 +309,8 @@ def attendance_report_view(request):
 
     # Build a dict: {student_id: {date1: True, date2: True, ...}, ...}
     student_attendance = {}
-    dates = sorted(set(record.date for record in attendance_records))
+    dates = sorted(set(record.timestamp.date() for record in attendance_records))
+
 
     for student in students:
         student_attendance[student] = {}
@@ -270,7 +318,7 @@ def attendance_report_view(request):
             student_attendance[student][date] = False  # default to absent
 
     for record in attendance_records:
-        student_attendance[record.student][record.date] = True
+        student_attendance[record.student][record.timestamp.date()] = True
 
     context = {
         'students': students,
@@ -728,6 +776,7 @@ def mark_absent(request):
 
 def student_list(request):
     students = Student.objects.select_related('user').all()
+    print(students)
     return render(request, 'dashboard/student_list.html', {'students': students})
 
 

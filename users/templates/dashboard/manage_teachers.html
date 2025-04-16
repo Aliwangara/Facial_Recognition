@@ -1,0 +1,35 @@
+{% extends "dashboard/d_layouts/d_master.html" %}
+{% block body %}
+<div class="container mt-4">
+    <h2>Pending Teacher Approvals</h2>
+    {% if pending_teachers %}
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for teacher in pending_teachers %}
+                <tr>
+                    <td>{{ teacher.username }}</td>
+                    <td>{{ teacher.email }}</td>
+                    <td>
+                        <form method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <input type="hidden" name="teacher_id" value="{{ teacher.id }}">
+                            <button name="action" value="approve" class="btn btn-success btn-sm">Approve</button>
+                            <button name="action" value="block" class="btn btn-danger btn-sm">Block</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No teachers pending approval.</p>
+    {% endif %}
+</div>
+{% endblock %}

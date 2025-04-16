@@ -1,5 +1,6 @@
 {% extends 'dashboard/d_layouts/d_master.html' %}
 {% load static %}
+{% load dict_filters %}
 
 {% block body %}
 
@@ -19,7 +20,7 @@
             <td>{{ student.user.get_full_name }}</td>
             {% for date in dates %}
                 <td>
-                    {% if student_attendance.student.date %}
+                    {% if student_attendance|get_item:student|get_item:date %}
                         ✅
                     {% else %}
                         ❌
@@ -35,3 +36,6 @@
 
 
 {% endblock %}
+
+{% include 'dashboard/d_layouts/d_footer.html'%}
+

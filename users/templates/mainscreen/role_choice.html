@@ -1,0 +1,96 @@
+{% extends "mainscreen/ms_layouts/master.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6 text-center">
+            {% if user.is_authenticated %}
+                <!-- Logged In State -->
+                <div class="card shadow-sm border-0 mt-5">
+                    <div class="card-body p-4">
+                        <img src="{% static 'mainscreen/images/user-icon.svg' %}" alt="User" class="mb-4" width="80">
+                        <h2 class="mb-3">Welcome back, {{ user.get_full_name|default:user.username }}</h2>
+                        
+                        <div class="d-flex justify-content-center gap-3 mt-4">
+                            <a href="{% url 'dashboard' %}" class="btn btn-success px-4 py-2">
+                                <i class="fas fa-tachometer-alt me-2"></i> Dashboard
+                            </a>
+                            <a href="{% url 'account_logout' %}" class="btn btn-outline-danger px-4 py-2">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <!-- Guest State -->
+                <div class="text-center mt-5">
+                    <img src="{% static 'mainscreen/images/face-recognition-icon.svg' %}" alt="Facial Recognition" class="mb-4" width="100">
+                    <h1 class="mb-4">Facial Recognition Attendance System</h1>
+                    <p class="lead text-muted mb-5">Please select your role to continue</p>
+                    
+                    <div class="d-flex justify-content-center gap-4">
+                        <!-- Student Card -->
+                        <div class="card role-card shadow-sm" style="width: 18rem;">
+                            <div class="card-body text-center p-4">
+                                <div class="icon-circle bg-primary mb-3 mx-auto">
+                                    <i class="fas fa-user-graduate text-white"></i>
+                                </div>
+                                <h3 class="h5 mb-3">Student</h3>
+                                <p class="text-muted small mb-4">
+                                    Mark your attendance using facial recognition
+                                </p>
+                                <a href="{% url 'student_login' %}" class="btn btn-primary w-100">
+                                    Continue as Student
+                                </a>
+                            </div>
+                        </div>
+                        
+                        <!-- Teacher Card -->
+                        <div class="card role-card shadow-sm" style="width: 18rem;">
+                            <div class="card-body text-center p-4">
+                                <div class="icon-circle bg-secondary mb-3 mx-auto">
+                                    <i class="fas fa-chalkboard-teacher text-white"></i>
+                                </div>
+                                <h3 class="h5 mb-3">Teacher</h3>
+                                <p class="text-muted small mb-4">
+                                    Manage classes and view attendance reports
+                                </p>
+                                <a href="{% url 'account_login' %}?role=teacher" class="btn btn-secondary w-100">
+                                    Continue as Teacher
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-5 text-muted small">
+                        <p>Don't have an account? Contact your institution administrator</p>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .role-card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        border-radius: 12px;
+    }
+    .role-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+    }
+    .icon-circle {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+</style>
+{% endblock %}

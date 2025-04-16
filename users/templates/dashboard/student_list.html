@@ -2,12 +2,12 @@
 {% extends 'dashboard/d_layouts/d_master.html' %}
 
 {% block body %}
-<h1>All Students</h1>
-<ul>
+  <h1>All Students</h1>
+  <ul>
     {% for student in students %}
-        <li>{{ student.user.get_full_name }} - {{ student.student_id }}</li>
+        <li>{{student.user.get_full_name}} - {{student.student_id}}</li>
     {% empty %}
         <li>No students found.</li>
     {% endfor %}
-</ul>
+  </ul>
 {% endblock %}

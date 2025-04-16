@@ -33,3 +33,7 @@ class FaceUploadForm(forms.Form):
 
 class FaceUploadSelectForm(forms.Form):
     student = forms.ModelChoiceField(queryset=Student.objects.select_related('user').all(), label="Select Student")
+
+class StudentLoginForm(forms.Form):
+    username = forms.CharField(max_length=30)
+    password = forms.CharField(widget=forms.PasswordInput)

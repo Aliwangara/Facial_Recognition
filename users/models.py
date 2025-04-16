@@ -7,6 +7,7 @@ import json
 class User(AbstractUser):
     is_teacher = models.BooleanField(default=False)
     is_student = models.BooleanField(default=False)
+    is_approved_teacher = models.BooleanField(default=False)
     
     # Add these to resolve the clashes
     groups = models.ManyToManyField(
@@ -36,6 +37,7 @@ class Student(models.Model):
     course = models.CharField(max_length=100)
     year_of_study = models.IntegerField()
     face_encoding = models.TextField()  # Store face encoding as JSON string
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def set_face_encoding(self, encoding):
         """Save face encoding as JSON string"""

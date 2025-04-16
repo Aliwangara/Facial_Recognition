@@ -2,135 +2,208 @@
 {% load static %}
 
 {% block body %}
-<main class="app-main">
-    <!-- Header -->
-    <div class="app-content-header">
-        <div class="container-fluid">
-            <div class="row">
-                <div class="col-sm-6">
-                    <h3 class="mb-0">Smart Face Recognition Attendance System</h3>
-                    <p class="text-muted mt-1">Welcome, 
-                        {% if role == "Teacher" %}Teacher 
-                        {% elif role == "Student" %}Student 
-                        {% elif role == "Admin" %}Admin 
-                        {% endif %}
-                        {{ user.get_full_name }}
-                    </p>
+
+<!-- Header -->
+<div class="app-content-header">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-sm-6">
+                <h3 class="mb-0">Smart Face Recognition Attendance System</h3>
+                <p class="text-muted mt-1">Welcome, 
+                    {% if role == "Teacher" %}Teacher 
+                    {% elif role == "Student" %}Student 
+                    {% elif role == "Admin" %}Admin 
+                    {% endif %}
+                    {{ user.get_full_name }}
+                </p>
+            </div>
+            <div class="col-sm-6">
+                <ol class="breadcrumb float-sm-end">
+                    <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+                    <li class="breadcrumb-item active">Dashboard</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Content -->
+<div class="app-content">
+    <div class="container-fluid">
+        <div class="row">
+            {% if role == "Admin" %}
+            <!-- Admin Dashboard Stats -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box text-bg-primary">
+                    <div class="inner">
+                        <h3>{{ total_students }}</h3>
+                        <p>Total Students</p>
+                    </div>
+                    <a href="{% url 'student_list' %}" class="small-box-footer link-light">
+                        View All <i class="bi bi-chevron-right"></i>
+                    </a>
                 </div>
-                <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-end">
-                        <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
-                        <li class="breadcrumb-item active">Dashboard</li>
-                    </ol>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box text-bg-success">
+                    <div class="inner">
+                        <h3>{{ present_today }}</h3>
+                        <p>Present Today</p>
+                    </div>
+                    <a href="{% url 'today' %}" class="small-box-footer link-light">
+                        View Details <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box text-bg-danger">
+                    <div class="inner">
+                        <h3>{{ absent_today }}</h3>
+                        <p>Absent Today</p>
+                    </div>
+                    <a href="{% url 'absent' %}" class="small-box-footer link-light">
+                        View Details <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box text-bg-warning">
+                    <div class="inner">
+                        <h3>{{ attendance_rate }}<sup>%</sup></h3>
+                        <p>Attendance Rate</p>
+                    </div>
+                    <a href="{% url 'attendance_report' %}" class="small-box-footer link-dark">
+                        View Report <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+            {% elif role == "Teacher" %}
+            <!-- Teacher Dashboard Stats -->
+            <div class="col-lg-3 col-6">
+                <div class="small-box text-bg-primary">
+                    <div class="inner">
+                        <h3>{{ total_students }}</h3>
+                        <p>Total Students in Your Class</p>
+                    </div>
+                    <a href="{% url 'student_list' %}" class="small-box-footer link-light">
+                        View Students <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box text-bg-success">
+                    <div class="inner">
+                        <h3>{{ present_today }}</h3>
+                        <p>Present Today</p>
+                    </div>
+                    <a href="{% url 'today' %}" class="small-box-footer link-light">
+                        View Details <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box text-bg-danger">
+                    <div class="inner">
+                        <h3>{{ absent_today }}</h3>
+                        <p>Absent Today</p>
+                    </div>
+                    <a href="{% url 'absent' %}" class="small-box-footer link-light">
+                        View Details <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+                <div class="small-box text-bg-warning">
+                    <div class="inner">
+                        <h3>{{ attendance_rate }}<sup>%</sup></h3>
+                        <p>Attendance Rate</p>
+                    </div>
+                    <a href="{% url 'attendance_report' %}" class="small-box-footer link-dark">
+                        View Report <i class="bi bi-chevron-right"></i>
+                    </a>
+                </div>
+            </div>
+            {% elif role == "Student" %}
+            <!-- Student Dashboard Stats -->
+            <div class="col-lg-3 col-6">
+             <div class="small-box text-bg-primary">
+               <div class="inner">
+                 <h3>{{ total_present }}</h3>
+                 <p>Days Present</p>
+                </div>
+               <a href="{% url 'attendance_report' %}" class="small-box-footer link-light">
+                  View Report <i class="bi bi-chevron-right"></i>
+                </a>
+             </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+               <div class="small-box text-bg-danger">
+                 <div class="inner">
+                   <h3>{{ total_absent }}</h3>
+                   <p>Days Absent</p>
+                 </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-6">
+               <div class="small-box text-bg-warning">
+                  <div class="inner">
+                    <h3>{{ attendance_percentage }}<sup>%</sup></h3>
+                    <p>Attendance Rate</p>
+                  </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Attendance Logs Table -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title">Real-Time Attendance Logs</h3>
+                        <div class="card-tools">
+                            <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
+                                <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
+                                <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
+                            </button>
+                            <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Student ID</th>
+                                    <th>Name</th>
+                                    <th>Time Recognized</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendance-log">
+                                <tr><td colspan="4" class="text-center">Loading logs...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="card-footer clearfix">
+                        <a href="javascript:void(0)" class="btn btn-sm btn-primary float-end" id="refresh-btn">
+                            <i class="bi bi-clock-history"></i> Refresh Data
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-
-    <!-- Content -->
-    <div class="app-content">
-        <div class="container-fluid">
-            <div class="row">
-                <!-- Total Students -->
-                <div class="col-lg-3 col-6">
-                    <div class="small-box text-bg-primary">
-                        <div class="inner">
-                            <h3>{{ total_students }}</h3>
-                            <p>Total Students</p>
-                        </div>
-                        <svg class="small-box-icon" ...></svg>
-                        <a href="{% url 'student_list' %}" class="small-box-footer link-light">
-                            View All <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Present Today -->
-                <div class="col-lg-3 col-6">
-                    <div class="small-box text-bg-success">
-                        <div class="inner">
-                            <h3>{{ present_today }}</h3>
-                            <p>Present Today</p>
-                        </div>
-                        <svg class="small-box-icon" ...></svg>
-                        <a href="{% url 'today' %}" class="small-box-footer link-light">
-                            View Details <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Absent Today -->
-                <div class="col-lg-3 col-6">
-                    <div class="small-box text-bg-danger">
-                        <div class="inner">
-                            <h3>{{ absent_today }}</h3>
-                            <p>Absent Today</p>
-                        </div>
-                        <svg class="small-box-icon" ...></svg>
-                        <a href="{% url 'absent' %}" class="small-box-footer link-light">
-                            View Details <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Attendance Rate -->
-                <div class="col-lg-3 col-6">
-                    <div class="small-box text-bg-warning">
-                        <div class="inner">
-                            <h3>{{ attendance_rate }}<sup>%</sup></h3>
-                            <p>Attendance Rate</p>
-                        </div>
-                        <svg class="small-box-icon" ...></svg>
-                        <a href="{% url 'attendance_report' %}" class="small-box-footer link-dark">
-                            View Report <i class="bi bi-chevron-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Attendance Logs Table -->
-            <div class="row">
-                <div class="col-12">
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Real-Time Attendance Logs</h3>
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-lte-toggle="card-collapse">
-                                    <i data-lte-icon="expand" class="bi bi-plus-lg"></i>
-                                    <i data-lte-icon="collapse" class="bi bi-dash-lg"></i>
-                                </button>
-                                <button type="button" class="btn btn-tool" data-lte-toggle="card-remove">
-                                    <i class="bi bi-x-lg"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="card-body p-0">
-                            <table class="table table-striped">
-                                <thead>
-                                    <tr>
-                                        <th>Student ID</th>
-                                        <th>Name</th>
-                                        <th>Time Recognized</th>
-                                        <th>Status</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="attendance-log">
-                                    <tr><td colspan="4" class="text-center">Loading logs...</td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <div class="card-footer clearfix">
-                            <a href="javascript:void(0)" class="btn btn-sm btn-primary float-end" id="refresh-btn">
-                                <i class="bi bi-clock-history"></i> Refresh Data
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
-</main>
+</div>
 
 <script>
     function fetchAttendanceData() {
