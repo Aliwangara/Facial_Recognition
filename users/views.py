@@ -105,32 +105,34 @@ def dashboard(request):
 
     elif hasattr(request.user, 'student'):
      student = request.user.student
-    today = timezone.now().date()
+     today = timezone.now().date()
     
-    # Get all attendance records
-    attendance_records = Attendance.objects.filter(student=student)
-    total_present = attendance_records.count()
+     #  Get all attendance records
+     attendance_records = Attendance.objects.filter(student=student)
+     total_present = attendance_records.count()
     
-    # Calculate days since registration
-    start_date = student.created_at.date()
-    total_days = (today - start_date).days
+     # Calculate days since registration
+     start_date = student.created_at.date()
+     total_days = (today - start_date).days
     
-    # Ensure minimum of 1 day to avoid division by zero
-    total_days = max(1, total_days)
+     # Ensure minimum of 1 day to avoid division by zero
+     total_days = max(1, total_days)
     
-    # Calculate absent days (can't be negative)
-    total_absent = max(0, total_days - total_present)
+     # Calculate absent days (can't be negative)
+     total_absent = max(0, total_days - total_present)
     
-    # Calculate attendance percentage (0-100)
-    attendance_percentage = min(100, max(0, round((total_present / total_days) * 100, 2)))
+     # Calculate attendance percentage (0-100)
+     attendance_percentage = min(100, max(0, round((total_present / total_days) * 100, 2)))
     
-    context = {
+     context = {
         'role': 'Student',
         'total_present': total_present,
         'total_absent': total_absent,  # This will never be negative
         'attendance_percentage': attendance_percentage,
-    }
-    return render(request, 'dashboard/d_index.html', context)
+        'student': student,
+     }
+     return render(request, 'dashboard/d_index.html', context)
+    return render(request, 'dashboard/d_index.html')
 
 
 def student_login_view(request):

@@ -9,7 +9,7 @@ from datetime import datetime
 from django.utils.timezone import now
 
 # Django setup
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'facialR_project.settings')  # ⛳️ Replace 'yourproject'
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'facialR_project.settings')  
 django.setup()
 
 from users.models import FaceEncoding, LiveAttendance, Subject

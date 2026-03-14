@@ -30,14 +30,17 @@ SECRET_KEY =os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Also ensure these settings are correct:
 CSRF_COOKIE_SECURE = True  # For HTTPS
 SESSION_COOKIE_SECURE = True  # For HTTPS
 CORS_ALLOWED_ORIGINS = [
-    'https://b7bc-41-90-172-173.ngrok-free.app',
+    'https://072a-102-0-123-227.ngrok-free.app',
+]
+CSRF_TRUSTED_ORIGINS = [
+    'https://072a-102-0-123-227.ngrok-free.app',
 ]
 
 
@@ -48,7 +51,7 @@ AUTH_USER_MODEL = 'users.User'
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
-    
+
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
@@ -223,10 +226,10 @@ LOGGING = {
                'level': 'INFO',
                'propagate': True,
            },
-           'users': {  # Logger for your app
+           'users': {  
                'handlers': ['file'],
                'level': 'ERROR',
-               'propagate': False,  # Prevent duplication
+               'propagate': False,  
            },
        }
    }
